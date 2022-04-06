@@ -1,6 +1,6 @@
 from jsondiff import diff
-from utils.logger_util import logger
-from libs.terraform import Terraform
+from nops_cli.utils.logger_util import logger
+from nops_cli.libs.terraform import Terraform
 
 class TerraformPricing(Terraform):
     def __init__(self, tf_dir, **kwargs):

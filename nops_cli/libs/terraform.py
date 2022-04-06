@@ -1,8 +1,8 @@
 import json
 import string
 import random
-from utils.execute_command import execute
-from utils.logger_util import logger
+from nops_cli.utils.execute_command import execute
+from nops_cli.utils.logger_util import logger
 
 
 class Terraform:
