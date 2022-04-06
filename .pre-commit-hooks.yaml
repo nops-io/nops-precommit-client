@@ -1,0 +1,6 @@
+-   id: test-nops-cli
+    name: Test NOPS CLI
+    description: This hook will test NOPS CLI
+    entry: main_cli.py
+    language: python
+    #types: [text]

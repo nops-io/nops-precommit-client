@@ -1,5 +1,5 @@
 import subprocess
-from utils.logger_util import logger
+from nops_cli.utils.logger_util import logger
 
 
 def execute(command, cwd=None):

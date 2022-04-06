@@ -1,6 +1,6 @@
 import argparse
-from utils.logger_util import logger
-from subcommands.pricing.terraform_pricing import TerraformPricing
+from nops_cli.utils.logger_util import logger
+from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
 
 
 
