@@ -1,3 +1,4 @@
+import json
 import argparse
 from nops_cli.utils.logger_util import logger
 from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
@@ -31,9 +32,10 @@ def main():
         if iac_type == "terraform":
             tf_pricing = TerraformPricing(tf_dir)
             sdk_payload = tf_pricing.get_plan_delta()
-            print(f"SDK Payload: {sdk_payload}")
+            # print(f"SDK Payload: {sdk_payload}")
             sdk_output = tmp_process_output(sdk_payload)
-            print(f"SDK Output: {sdk_output}")
+            sdk_output = json.dumps(sdk_output, indent=4)
+            print(sdk_output)
     if hello_world:
         hello_world_obj = HelloWorld(hello_world)
         hello_world_obj.say_hi()
@@ -56,8 +58,8 @@ def tmp_process_output(sdk_payload):
             created_resources_cost[resource_type] = {}
             created_resources_cost[resource_type]["cost"] = 0
             created_resources_cost[resource_type]["count"] = 0
-        created_resources_cost[resource_type]["cost"] += 10
-        total_cost += 10
+        created_resources_cost[resource_type]["cost"] += 4
+        total_cost += 4
         created_resources_cost[resource_type]["count"] += 1
     for resource in updated_resources:
         resource_type = resource["resource_type"]
@@ -72,6 +74,7 @@ def tmp_process_output(sdk_payload):
         updated_resources_cost[resource_type]["count"] += 1
         updated_resources_cost[resource_type]["ids"].append(id)
     output["total_cost"] = total_cost
+    output["unit"] = "hourly"
     return output
 
 
