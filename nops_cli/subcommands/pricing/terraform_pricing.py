@@ -45,11 +45,11 @@ class TerraformPricing(Terraform):
         return processed_output
 
     def get_plan_delta(self):
-        logger.info("Get terraform plan output")
+        logger.debug("Get terraform plan output")
         output = self.terraform_plan()
         logger.debug(f"Terraform plan output: {output}")
         # Process output to identify resource ids,type and delta from terraform plan output
-        logger.info("Process terraform plan output")
+        logger.debug("Process terraform plan output")
         processed_output = self._process_terraform_output(output)
         logger.debug(f"Processed terraform plan output {processed_output}")
         return processed_output

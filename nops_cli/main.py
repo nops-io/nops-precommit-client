@@ -28,9 +28,9 @@ def main():
         if iac_type == "terraform":
             tf_pricing = TerraformPricing(tf_dir)
             sdk_payload = tf_pricing.get_plan_delta()
-            logger.info(f"SDK Payload: {sdk_payload}")
+            print(f"SDK Payload: {sdk_payload}")
             sdk_output = tmp_process_output(sdk_payload)
-            logger.info(f"SDK Output: {sdk_output}")
+            print(f"SDK Output: {sdk_output}")
     if hello_world:
         hello_world_obj = HelloWorld(hello_world)
         hello_world_obj.say_hi()
