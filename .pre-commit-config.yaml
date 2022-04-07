@@ -8,4 +8,4 @@ repos:
         entry: nops-cli
         language: python
         language_version: "3.8"
-        additional_depenedencies: ["jsondiff"]
+        additional_depenedencies: ["jsondiff", "nops_sdk"]

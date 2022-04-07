@@ -10,7 +10,7 @@
 -   id: nops-hook
     name: nOps Hello World Hook
     description: This hook is hello world hook
-    entry: nops-cli  --hello-world Shreyas
+    entry: nops-cli  --get_accounts
     language: python
     language_version: "3.8"
     additional_dependencies: ["jsondiff"]
