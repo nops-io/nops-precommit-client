@@ -1,6 +1,8 @@
 from jsondiff import diff
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
+
+
 class TerraformPricing(Terraform):
     def __init__(self, tf_dir, **kwargs):
         Terraform.__init__(self, tf_dir, **kwargs)
@@ -53,6 +55,6 @@ class TerraformPricing(Terraform):
         return processed_output
 
     def get_nops_pricing(self):
-        #TODO: Update the computed delta using nops SDK and return result to CLI
+        # TODO: Update the computed delta using nops SDK and return result to CLI
         pass
 
