@@ -1,0 +1,10 @@
+repos:
+-   repo: local
+    rev: v1.2.3
+    hooks:
+    -   id: nops-hook
+        name: nops-hook
+        entry: nops-cli
+        language: python
+        language_version: "3.8"
+        additional_depenedencies: ["jsondiff"]

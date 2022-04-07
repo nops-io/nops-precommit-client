@@ -11,12 +11,13 @@ def get_logger(logger_name, file_name, console_logs=False):
     file_handler.setFormatter(formatter)
     # add file handler to logger
     logger.addHandler(file_handler)
-    logger.setLevel(os.environ.get('LOG_LEVEL', 'DEBUG'))
+    logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
     if console_logs:
         console_handle = logging.StreamHandler(sys.stdout)
         console_handle.setFormatter(formatter)
         logger.addHandler(console_handle)
     return logger
+
 
 logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log", True)
 
