@@ -13,6 +13,7 @@ def main():
                               help='Please enter lastname')
     parser.add_argument('--iac_type', default="terraform", choices=["terraform"],
                         help='Please enter lastname')
+    parser.add_argument("filenames", nargs="*")
     args = parser.parse_args()
 
     pricing = args.pricing
@@ -25,6 +26,7 @@ def main():
             tf_pricing = TerraformPricing(tf_dir)
             delta = tf_pricing.get_plan_delta()
             logger.info(f"Result: {delta}")
+            print(f"Result: {delta}")
     if dependency:
         pass
 
