@@ -2,6 +2,7 @@ from jsondiff import diff
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
 
+
 class TerraformPricing(Terraform):
     def __init__(self, tf_dir, **kwargs):
         Terraform.__init__(self, tf_dir, **kwargs)
@@ -24,10 +25,12 @@ class TerraformPricing(Terraform):
             if "delete" in change_type:
                 id = resource_change["change"]["before"]["id"]
             resource_type = resource_change["type"]
-            resource_data = {}
-            resource_data["id"] = id
-            resource_data["delta"] = delta
-            resource_data["change_type"] = change_type
+            resource_data = {
+                "id": id,
+                "delta": delta,
+                "change_type": change_type
+            }
+
             if resource_type in processed_output:
                 processed_output[resource_type].append(resource_data)
             else:
@@ -36,7 +39,7 @@ class TerraformPricing(Terraform):
         return processed_output
 
     def get_plan_delta(self):
-        #TODO: Get resource ids,type and delta from terraform plan result
+        # TODO: Get resource ids,type and delta from terraform plan result
         logger.info("Get terraform plan output")
         output = self.terraform_plan()
         logger.debug(f"Terraform plan output: {output}")
@@ -47,7 +50,7 @@ class TerraformPricing(Terraform):
         return processed_output
 
     def get_nops_pricing(self):
-        #TODO: Update the computed delta using nops SDK and return result to CLI
+        # TODO: Update the computed delta using nops SDK and return result to CLI
         pass
 
 
