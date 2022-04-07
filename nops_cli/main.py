@@ -2,12 +2,14 @@ import argparse
 from nops_cli.utils.logger_util import logger
 from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
 from nops_cli.subcommands.hello_world.hello_world import HelloWorld
+from nops_cli.subcommands.get_accounts.get_accounts import Accounts
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tf_dir', help="Terraform directory path")
-    parser.add_argument('--hello-world', help="Hello World")
+    parser.add_argument('--hello_world', help="Hello World")
+    parser.add_argument('--get_accounts', help="Hello World", action="store_true")
     parser.add_argument('--pricing', default=False, action="store_true",
                         help="Enable Pricing Projection")
     parser.add_argument('--dependency', default=False, action="store_true",
@@ -22,6 +24,7 @@ def main():
     dependency = args.dependency
     iac_type = args.iac_type
     hello_world = args.hello_world
+    get_accounts = args.get_accounts
     tf_dir = args.tf_dir
 
     if pricing:
@@ -34,6 +37,9 @@ def main():
     if hello_world:
         hello_world_obj = HelloWorld(hello_world)
         hello_world_obj.say_hi()
+    if get_accounts:
+        accounts = Accounts()
+        accounts.get_accounts()
 
 def tmp_process_output(sdk_payload):
     output = {}
