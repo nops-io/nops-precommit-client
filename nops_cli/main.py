@@ -27,11 +27,48 @@ def main():
     if pricing:
         if iac_type == "terraform":
             tf_pricing = TerraformPricing(tf_dir)
-            delta = tf_pricing.get_plan_delta()
-            logger.info(f"Result: {delta}")
+            sdk_payload = tf_pricing.get_plan_delta()
+            logger.info(f"SDK Payload: {sdk_payload}")
+            sdk_output = tmp_process_output(sdk_payload)
+            logger.info(f"SDK Output: {sdk_output}")
     if hello_world:
         hello_world_obj = HelloWorld(hello_world)
         hello_world_obj.say_hi()
+
+def tmp_process_output(sdk_payload):
+    output = {}
+    total_cost = 0
+    created_resources = sdk_payload["create"]
+    updated_resources = sdk_payload["update"]
+    created_resources_cost = {}
+    updated_resources_cost = {}
+    output["created_resources_cost"] = created_resources_cost
+    output["updated_resources_cost"] = updated_resources_cost
+    for resource in created_resources:
+        resource_type = resource["resource_type"]
+        if resource_type not in created_resources_cost:
+            created_resources_cost[resource_type] = {}
+            created_resources_cost[resource_type]["cost"] = 0
+            created_resources_cost[resource_type]["count"] = 0
+        created_resources_cost[resource_type]["cost"] += 10
+        total_cost += 10
+        created_resources_cost[resource_type]["count"] += 1
+    for resource in updated_resources:
+        resource_type = resource["resource_type"]
+        id = resource["id"]
+        if resource_type not in updated_resources_cost:
+            updated_resources_cost[resource_type] = {}
+            updated_resources_cost[resource_type]["cost"] = 0
+            updated_resources_cost[resource_type]["count"] = 0
+            updated_resources_cost[resource_type]["ids"] = []
+        updated_resources_cost[resource_type]["cost"] += 2
+        total_cost += 2
+        updated_resources_cost[resource_type]["count"] += 1
+        updated_resources_cost[resource_type]["ids"].append(id)
+    output["total_cost"] = total_cost
+    return output
+
+
 
 
 if __name__ == '__main__':
