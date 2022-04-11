@@ -3,7 +3,6 @@ repos:
     rev: v1.2.3
     hooks:
     -   id: nops-hook
-        args: ["--tf_dir .", "--pricing"]
         name: nops-hook
         entry: nops-cli
         language: python

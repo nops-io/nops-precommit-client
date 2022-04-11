@@ -18,5 +18,6 @@ def get_logger(logger_name, file_name, console_logs=False):
         logger.addHandler(console_handle)
     return logger
 
+
 logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log", True)
 
