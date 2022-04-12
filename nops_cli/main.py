@@ -3,7 +3,7 @@ import argparse
 from nops_cli.utils.logger_util import logger
 from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
 from nops_cli.subcommands.hello_world.hello_world import HelloWorld
-from nops_cli.subcommands.get_accounts.get_accounts import Accounts
+#from nops_cli.subcommands.get_accounts.get_accounts import Accounts
 
 
 def main():
@@ -32,16 +32,16 @@ def main():
         if iac_type == "terraform":
             tf_pricing = TerraformPricing(tf_dir)
             sdk_payload = tf_pricing.get_plan_delta()
-            # print(f"SDK Payload: {sdk_payload}")
-            sdk_output = tmp_process_output(sdk_payload)
-            sdk_output = json.dumps(sdk_output, indent=4)
-            print(sdk_output)
+            print(f"SDK Payload: {sdk_payload}")
+            # sdk_output = tmp_process_output(sdk_payload)
+            # sdk_output = json.dumps(sdk_output, indent=4)
+            # print(sdk_output)
     if hello_world:
         hello_world_obj = HelloWorld(hello_world)
         hello_world_obj.say_hi()
-    if get_accounts:
-        accounts = Accounts()
-        accounts.get_accounts()
+    #if get_accounts:
+    #    accounts = Accounts()
+    #    accounts.get_accounts()
 
 def tmp_process_output(sdk_payload):
     output = {}
