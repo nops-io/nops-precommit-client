@@ -5,6 +5,13 @@ import sys
 
 
 def get_logger(logger_name, file_name, console_logs=False):
+    """
+    Return logger for nops-cli
+    :param logger_name: Name for the logger
+    :param file_name: File path to write the logs
+    :param console_logs: Flag to enable logs on console
+    :return: logger instance
+    """
     logger = logging.getLogger(logger_name)
     file_handler = logging.FileHandler(file_name)
     formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')

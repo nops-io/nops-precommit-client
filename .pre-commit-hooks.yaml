@@ -1,17 +1,9 @@
--   id: test-nops-cli
-    name: Test NOPS CLI
-    description: This hook will test NOPS CLI
-    entry: nops-cli --hello_world Shreyas
-    language: python
-    language_version: "3.8"
-    additional_dependencies: ["jsondiff"]
-    #types: [text]
-
 -   id: nops-hook
     name: nOps Pricing Hook
     description: This hook is hello world hook
-    entry: nops-cli  --tf_dir terraform --pricing
+    entry: nops-cli --pricing --iac-type terraform
     language: python
     language_version: "3.8"
     additional_dependencies: ["jsondiff"]
-#    python_venv: venv
+    files: (\.tf)$
+    exclude: \.terraform\/.*$
