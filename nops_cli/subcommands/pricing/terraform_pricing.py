@@ -1,3 +1,6 @@
+'''
+Module to get and process the terraform outputs/states for nops pricing API's
+'''
 from jsondiff import diff
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
@@ -8,6 +11,11 @@ class TerraformPricing(Terraform):
         Terraform.__init__(self, tf_dir, **kwargs)
 
     def _process_terraform_output(self, plan_out):
+        """
+        Process terraform output to create payload for nops pricing API
+        :param plan_out: Terraform plan output in JSON format
+        :return: processed_output can be used as a payload for nops pricing API
+        """
         processed_output = []
         for resource_change in plan_out["resource_changes"]:
             id = None
@@ -37,19 +45,30 @@ class TerraformPricing(Terraform):
         return processed_output
 
     def get_terraform_resource_alias(self, resource_type):
+        """
+        Get the generic alias for terraform resource name(To make resource name consistent
+        across the different IAC)
+        :param resource_type: Terraform resource name
+        :return: generic resource name
+        """
         if resource_type in TERRAFORM_RESOURCE_MAPPING:
             return TERRAFORM_RESOURCE_MAPPING[resource_type]
         else:
             return resource_type
 
     def get_plan_delta(self):
+        """
+        Get "terraform plan" output in JSON format
+        """
+        processed_output = None
         logger.debug("Get terraform plan output")
         output = self.terraform_plan()
         logger.debug(f"Terraform plan output: {output}")
         # Process output to identify resource ids,type and delta from terraform plan output
         logger.debug("Process terraform plan output")
-        processed_output = self._process_terraform_output(output)
-        logger.debug(f"Processed terraform plan output {processed_output}")
+        if output:
+            processed_output = self._process_terraform_output(output)
+            logger.debug(f"Processed terraform plan output {processed_output}")
         return processed_output
 
     def get_nops_pricing(self):

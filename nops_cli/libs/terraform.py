@@ -28,3 +28,4 @@ class Terraform:
         except Exception as e:
             logger.error(f"Error while converting terraform output to JSON")
         return json_out
+

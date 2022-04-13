@@ -1,8 +1,17 @@
+"""
+Library to execute the commands on local machine
+"""
 import subprocess
 from nops_cli.utils.logger_util import logger
 
 
 def execute(command, cwd=None):
+    """
+    Execute command on local machine
+    :param command: Command to be executed
+    :param cwd: Execute command inside cwd
+    :return: command std output
+    """
     try:
         logger.debug(f"Executing command: {command}")
         logger.debug(command)
