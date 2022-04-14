@@ -11,7 +11,7 @@ import sys
 
 from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
 from nops_cli.subcommands.dependancy.terraform_dependency import TerraformDependency
-
+from nops_sdk.pricing.pricing import compute_terraform_cost_change
 #from nops_cli.subcommands.get_accounts.get_accounts import Accounts
 
 
@@ -46,13 +46,11 @@ def main():
             if pricing:
                 tf_pricing = TerraformPricing(tf_dir_path)
                 sdk_payload = tf_pricing.get_plan_delta()
-                print(f"SDK Payload: {sdk_payload}")
+                # print(f"SDK Payload: {sdk_payload}")
                 if sdk_payload:
-                    # out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
-                    # print(out)
-                    sdk_output = tmp_process_output(sdk_payload)
-                    sdk_output = json.dumps(sdk_output, indent=4)
-                    print(sdk_output)
+                    out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
+                    for op in out:
+                        print(op.report)
                 else:
                     print(f"No change found in terraform project: {tf_dir_paths}")
             if dependency:

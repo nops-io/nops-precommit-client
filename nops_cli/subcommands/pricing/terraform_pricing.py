@@ -1,7 +1,6 @@
 '''
 Module to get and process the terraform outputs/states for nops pricing API's
 '''
-from jsondiff import diff
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
 from nops_cli.constants.resource_mapping import TERRAFORM_RESOURCE_MAPPING
