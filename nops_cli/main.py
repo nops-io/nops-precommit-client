@@ -51,7 +51,7 @@ def main():
                     for op in out:
                         print(op.report)
                 else:
-                    print(f"No change found in terraform project: {tf_dir_paths}")
+                    print(f"No change found in terraform project: {tf_dir_path}")
             if dependency:
                 tf_dependency = TerraformDependency(tf_dir_path)
                 resource_ids = tf_dependency.get_plan_delta()
@@ -65,7 +65,7 @@ def main():
                         print("Dependencies:")
                         print(json.dumps(output, indent=4))
                     else:
-                        print(f"No resource id found in terraform project: {tf_dir_paths}")
+                        print(f"No change found in terraform project: {tf_dir_path}")
 
 
 def get_aws_region():
