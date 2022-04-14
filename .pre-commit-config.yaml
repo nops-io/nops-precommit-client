@@ -3,8 +3,9 @@ repos:
     rev: v1.2.3
     hooks:
     -   id: nops-hook
-        name: nops-hook
-        entry: nops-cli
+        name: nOps Pricing Hook
+        description: This hook is hello world hook
+        entry: nops-cli  --tf_dir terraform --pricing
         language: python
         language_version: "3.8"
-        additional_depenedencies: ["jsondiff"]
+        additional_dependencies: ["jsondiff"]
