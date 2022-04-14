@@ -1,3 +1,4 @@
+import os
 import json
 import string
 import random
@@ -21,11 +22,17 @@ class Terraform:
 
     def terraform_plan(self):
         binary_name = self._generate_terrform_binary()
-        output = execute(f"terraform show -json {binary_name}", self.tf_dir)
-        json_out = {}
-        try:
-            json_out = json.loads(output)
-        except Exception as e:
-            logger.error(f"Error while converting terraform output to JSON")
-        return json_out
+        binary_exists = os.path.isfile(f"{self.tf_dir}/{binary_name}")
+        if binary_exists:
+            logger.debug("Binary exists for terraform plan. Now processing output.")
+            output = execute(f"terraform show -json {binary_name}", self.tf_dir)
+            json_out = {}
+            try:
+                json_out = json.loads(output)
+            except Exception as e:
+                logger.error(f"Error while converting terraform output to JSON")
+            return json_out
+        else:
+            logger.debug(f"No change found in terraform project {self.tf_dir}")
+            return {}
 
