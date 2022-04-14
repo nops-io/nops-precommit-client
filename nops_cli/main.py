@@ -8,7 +8,7 @@ import json
 import os
 import argparse
 import sys
-
+from nops_cli.utils.logger_util import logger
 from nops_cli.subcommands.pricing.terraform_pricing import TerraformPricing
 from nops_cli.subcommands.dependancy.terraform_dependency import TerraformDependency
 from nops_sdk.pricing.pricing import compute_terraform_cost_change
@@ -46,7 +46,6 @@ def main():
             if pricing:
                 tf_pricing = TerraformPricing(tf_dir_path)
                 sdk_payload = tf_pricing.get_plan_delta()
-                # print(f"SDK Payload: {sdk_payload}")
                 if sdk_payload:
                     out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
                     for op in out:
@@ -62,9 +61,9 @@ def main():
                         sdk_payload = {}
                         sdk_payload["aws_account_number"] = accound_ids[0]
                         sdk_payload["resource_ids"] = resource_ids
-                        # print(f"SDK Payload: {resource_ids}")
                         output = tmp_process_output()
-                        print(output)
+                        print("Dependencies:")
+                        print(json.dumps(output, indent=4))
                     else:
                         print(f"No resource id found in terraform project: {tf_dir_paths}")
 
@@ -75,7 +74,7 @@ def get_aws_region():
     """
     aws_region = os.environ.get('AWS_REGION')
     if aws_region:
-        print(f"Current AWS region is {aws_region}")
+        logger.debug(f"Current AWS region is {aws_region}")
         return aws_region
     else:
         sys.exit("Please set AWS_REGION in env")
