@@ -1,11 +1,19 @@
-'''
+"""
 Module to get and process the terraform outputs/states for nops pricing API's
-'''
+"""
+
+from nops_sdk.pricing.pricing import compute_terraform_cost_change
+
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
 from nops_cli.constants.resource_mapping import TERRAFORM_RESOURCE_MAPPING
+from nops_cli.libs.aws_lib import get_aws_region
+
 
 class TerraformPricing(Terraform):
+    """
+    Terraform Pricing
+    """
     def __init__(self, tf_dir, **kwargs):
         Terraform.__init__(self, tf_dir, **kwargs)
 
@@ -16,8 +24,8 @@ class TerraformPricing(Terraform):
         :return: processed_output can be used as a payload for nops pricing API
         """
         processed_output = []
-        for resource_change in plan_out["resource_changes"]:
-            id = None
+        for resource_change in plan_out.get("resource_changes", {}):
+            resource_id = None
             resource_payload = {}
             resource_op = None
             change_type = resource_change["change"]["actions"]
@@ -30,12 +38,12 @@ class TerraformPricing(Terraform):
                 resource_op = "create"
             if "update" in change_type:
                 resource_op = "update"
-                id = resource_change["change"]["after"]["id"]
+                resource_id = resource_change["change"]["after"]["id"]
             if "delete" in change_type:
                 resource_op = "delete"
                 resource_payload = {}
-                id = resource_change["change"]["before"]["id"]
-            resource_payload["id"] = id
+                resource_id = resource_change["change"]["before"]["id"]
+            resource_payload["id"] = resource_id
             resource_payload["resource_type"] = self.get_terraform_resource_alias(resource_type)
             resource_payload["operation_type"] = resource_op
             resource_payload["old_data"] = old_data
@@ -48,16 +56,15 @@ class TerraformPricing(Terraform):
         Get the generic alias for terraform resource name(To make resource name consistent
         across the different IAC)
         :param resource_type: Terraform resource name
-        :return: generic resource name
+        :return: Generic resource name
         """
         if resource_type in TERRAFORM_RESOURCE_MAPPING:
             return TERRAFORM_RESOURCE_MAPPING[resource_type]
-        else:
-            return resource_type
+        return resource_type
 
     def get_plan_delta(self):
         """
-        Get "terraform plan" output in JSON format
+        Get "terraform plan" output in JSON format for pricing
         """
         processed_output = None
         logger.debug("Get terraform plan output")
@@ -70,7 +77,20 @@ class TerraformPricing(Terraform):
             logger.debug(f"Processed terraform plan output {processed_output}")
         return processed_output
 
-    def get_nops_pricing(self):
-        # TODO: Update the computed delta using nops SDK and return result to CLI
-        pass
-
+    def display_pricing(self, periodicity):
+        """
+        Get and display pricing info for terraform project
+        """
+        try:
+            sdk_payload = self.get_plan_delta()
+            aws_region = get_aws_region()
+            if sdk_payload:
+                out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
+                print(f"{periodicity.capitalize()} cost impact for resources: ")
+                for op in out:
+                    print(op.report)
+            else:
+                print(f"No change found pricing in terraform project: {self.tf_dir}")
+        except Exception as e:
+            logger.error(f"Error while processing terraform project {self.tf_dir} for pricing."
+                         f" Error: {e}")

@@ -1,11 +1,13 @@
 """
 Module to manage nops accounts
 """
-from nops_cli.utils.logger_util import logger
 from nops_sdk.api import APIClient
-
+from nops_cli.utils.logger_util import logger
 
 class Accounts:
+    """
+    Manage nOps accounts
+    """
     def __init__(self):
         self.api_client = APIClient()
 
