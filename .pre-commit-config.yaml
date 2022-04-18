@@ -4,6 +4,6 @@ repos:
     hooks:
       - id: nops-hook-pricing
         verbose: true
-        args: [--periodicity=monthly]
+        args: [--periodicity=daily]
       - id: nops-hook-dependency 
         verbose: true
