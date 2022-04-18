@@ -9,6 +9,15 @@ It will ignore non-terraform code changes. nops pre-commit hooks will be skipped
 nOps CLI can be independently installed and executed.
 
 ## How to install
+1. Clone repo [https://github.com/nops-io/nops-precommit-client.git](https://github.com/nops-io/nops-precommit-client.git)
+2. Checkout to git directory
+3. Run: (Use python3.9)
+`pip install .`
+
+It will install nops-cli and dependencies.
+
+Once we publish nops-cli to [pypi.org](http://pypi.org) then these steps will be as simple as `pip install nops-cli`.
+
 
 ## How to run
 ```CLI Help
