@@ -1,10 +1,10 @@
 """
 Library to interact with terraform CLI
 """
-import os
-import json
 import string
 import random
+from os import remove, path
+from json import loads, JSONDecodeError
 from nops_cli.utils.execute_command import execute
 from nops_cli.utils.logger_util import logger
 
@@ -36,19 +36,21 @@ class Terraform:
         """
         binary_name = self._generate_terrform_binary()
         binary_file_path = f"{self.tf_dir}/{binary_name}"
-        binary_exists = os.path.isfile(binary_file_path)
+        binary_exists = path.isfile(binary_file_path)
         if binary_exists:
-            logger.debug("Binary exists for terraform plan. Now processing output.")
-            output = execute(f"terraform show -json {binary_name}", self.tf_dir)
             json_out = {}
             try:
-                json_out = json.loads(output)
-            except Exception as e:
-                logger.error(f"Error while converting terraform output to JSON. Error: {e}")
-            try:
-                os.remove(binary_file_path)
-            except Exception as e:
+                logger.debug("Binary exists for terraform plan. Now processing output.")
+                output = execute(f"terraform show -json {binary_name}", self.tf_dir)
+                json_out = loads(output)
+                remove(binary_file_path)
+            except JSONDecodeError as je:
+                logger.error(f"Error while converting terraform output to JSON. Error: {je}")
+            except OSError as oe:
                 logger.error(f"Error while removing temporary binary file {binary_file_path}. "
+                             f"Error: {oe}")
+            except Exception as e:
+                logger.error(f"Error while reading temporary binary file {binary_file_path}. "
                              f"Error: {e}")
             return json_out
         logger.debug(f"No change found in terraform project {self.tf_dir}")

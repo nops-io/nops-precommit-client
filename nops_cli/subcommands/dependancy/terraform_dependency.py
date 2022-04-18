@@ -4,7 +4,6 @@ Module to get and process the terraform outputs/states for nops dependency API's
 import json
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
-from nops_cli.constants.resource_mapping import TERRAFORM_RESOURCE_MAPPING
 from nops_cli.libs.get_accounts import Accounts
 
 class TerraformDependency(Terraform):
@@ -35,18 +34,8 @@ class TerraformDependency(Terraform):
                 processed_output.append(resource_id)
         return processed_output
 
-    def get_terraform_resource_alias(self, resource_type):
-        """
-        Get the generic alias for terraform resource name(To make resource name consistent
-        across the different IAC)
-        :param resource_type: Terraform resource name
-        :return: generic resource name
-        """
-        if resource_type in TERRAFORM_RESOURCE_MAPPING:
-            return TERRAFORM_RESOURCE_MAPPING[resource_type]
-        return resource_type
 
-    def get_plan_delta(self):
+    def _get_plan_delta(self):
         """
         Get "terraform plan" output in JSON format
         """
@@ -68,7 +57,7 @@ class TerraformDependency(Terraform):
         try:
             account = Accounts()
             accound_ids = account.get_accounts_ids()
-            resource_ids = self.get_plan_delta()
+            resource_ids = self._get_plan_delta()
             if accound_ids:
                 if resource_ids:
                     sdk_payload = {}

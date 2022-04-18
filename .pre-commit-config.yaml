@@ -1,11 +1,9 @@
 repos:
--   repo: local
-    rev: v1.2.3
+  - repo: https://github.com/nops-io/nops-precommit-client/
+    rev: v1.0.5-beta
     hooks:
-    -   id: nops-hook
-        name: nOps Pricing Hook
-        description: This hook is hello world hook
-        entry: nops-cli  --tf_dir terraform --pricing
-        language: python
-        language_version: "3.8"
-        additional_dependencies: ["jsondiff"]
+      - id: nops-hook-pricing
+        verbose: true
+        args: [--periodicity=monthly]
+      - id: nops-hook-dependency 
+        verbose: true

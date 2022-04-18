@@ -6,9 +6,8 @@ from nops_sdk.pricing.pricing import compute_terraform_cost_change
 
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
-from nops_cli.constants.resource_mapping import TERRAFORM_RESOURCE_MAPPING
 from nops_cli.libs.aws_lib import get_aws_region
-
+from nops_cli.libs.common_lib import get_terraform_resource_alias
 
 class TerraformPricing(Terraform):
     """
@@ -44,25 +43,15 @@ class TerraformPricing(Terraform):
                 resource_payload = {}
                 resource_id = resource_change["change"]["before"]["id"]
             resource_payload["id"] = resource_id
-            resource_payload["resource_type"] = self.get_terraform_resource_alias(resource_type)
+            resource_payload["resource_type"] = get_terraform_resource_alias(resource_type)
             resource_payload["operation_type"] = resource_op
             resource_payload["old_data"] = old_data
             resource_payload["new_data"] = new_data
             processed_output.append(resource_payload)
         return processed_output
 
-    def get_terraform_resource_alias(self, resource_type):
-        """
-        Get the generic alias for terraform resource name(To make resource name consistent
-        across the different IAC)
-        :param resource_type: Terraform resource name
-        :return: Generic resource name
-        """
-        if resource_type in TERRAFORM_RESOURCE_MAPPING:
-            return TERRAFORM_RESOURCE_MAPPING[resource_type]
-        return resource_type
 
-    def get_plan_delta(self):
+    def _get_plan_delta(self):
         """
         Get "terraform plan" output in JSON format for pricing
         """
@@ -82,11 +71,12 @@ class TerraformPricing(Terraform):
         Get and display pricing info for terraform project
         """
         try:
-            sdk_payload = self.get_plan_delta()
+            sdk_payload = self._get_plan_delta()
             aws_region = get_aws_region()
             if sdk_payload:
                 out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
-                print(f"{periodicity.capitalize()} cost impact for resources: ")
+                print(f"{periodicity.capitalize()} cost impact for terraform project:"
+                      f" {self.tf_dir}")
                 for op in out:
                     print(op.report)
             else:
