@@ -16,8 +16,6 @@ nOps CLI can be independently installed and executed.
 
 It will install nops-cli and dependencies.
 
-Once we publish nops-cli to [pypi.org](http://pypi.org) then these steps will be as simple as `pip install nops-cli`.
-
 
 ## How to run
 ```CLI Help
