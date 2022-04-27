@@ -4,7 +4,7 @@ Module to manage nops accounts
 from nops_sdk.api import APIClient
 from nops_cli.utils.logger_util import logger
 
-class Accounts:
+class NOpsAPIClient:
     """
     Manage nOps accounts
     """

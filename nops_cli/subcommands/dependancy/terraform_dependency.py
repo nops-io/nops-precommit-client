@@ -2,9 +2,12 @@
 Module to get and process the terraform outputs/states for nops dependency API's
 """
 import json
+import sys
+
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
-from nops_cli.libs.get_accounts import Accounts
+from nops_cli.libs.get_accounts import NOpsAPIClient
+from nops_sdk.account.account import Account
 
 class TerraformDependency(Terraform):
     """
@@ -12,6 +15,7 @@ class TerraformDependency(Terraform):
     """
     def __init__(self, tf_dir, **kwargs):
         Terraform.__init__(self, tf_dir, **kwargs)
+        self.account_dep = None
 
     def _process_terraform_output(self, plan_out):
         """
@@ -50,19 +54,21 @@ class TerraformDependency(Terraform):
             logger.debug(f"Processed terraform plan output {processed_output}")
         return processed_output
 
+
     def display_dependencies(self):
         """
         Get and display dependencies info for terraform project
         """
         try:
-            account = Accounts()
-            accound_ids = account.get_accounts_ids()
             resource_ids = self._get_plan_delta()
-            if accound_ids:
+            self._set_nOps_account_for_dependency()
+            account_id = self._get_nOps_cloud_account_id()
+            if account_id:
                 if resource_ids:
                     sdk_payload = {}
-                    sdk_payload["aws_account_number"] = accound_ids[0]
+                    sdk_payload["aws_account_number"] = account_id
                     sdk_payload["resource_ids"] = resource_ids
+                    # output = self._get_resources_dependencies(resource_ids)
                     output = self.tmp_process_output()
                     print("Dependencies:")
                     print(json.dumps(output, indent=4))
@@ -71,6 +77,46 @@ class TerraformDependency(Terraform):
         except Exception as e:
             logger.error(f"Error while processing terraform project {self.tf_dir} for dependencies"
                          f". Error: {e}")
+
+
+    def _get_nOps_cloud_account_id(self):
+        """
+        Get nOps cloud account ID
+        """
+        account = NOpsAPIClient()
+        accound_id = None
+        try:
+            accound_ids = account.get_accounts_ids()
+            if not accound_ids:
+                logger.error("nOps Cloud account is not available")
+            else:
+                accound_id = accound_ids[0]
+        except Exception as e:
+            logger.error(f"Error while getting nOps cloud accounts. Error: {e}")
+        return accound_id
+
+
+    def _set_nOps_account_for_dependency(self):
+        """
+        Set nOps account for cloud resource dependencies
+        """
+        account_id = self._get_nOps_cloud_account_id()
+        if account_id:
+            self.account_dep = Account(account_id)
+        else:
+            sys.exit("nOps Cloud account is not available")
+
+
+    def _get_resources_dependencies(self, resource_ids):
+        """
+        Get resource dependencies for resource ids
+        """
+        resources_dependencies = []
+        for resource_id in resource_ids:
+            resource_dependency = self.account_dep.get_related_resources(resource_id)
+            resources_dependencies.append(resource_dependency)
+        return resources_dependencies
+
 
     def tmp_process_output(self):
         """

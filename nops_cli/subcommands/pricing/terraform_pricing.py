@@ -2,8 +2,9 @@
 Module to get and process the terraform outputs/states for nops pricing API's
 """
 
-from nops_sdk.pricing.pricing import compute_terraform_cost_change
-
+from nops_sdk.pricing import CloudCost
+from nops_sdk.cloud_infrastructure.enums import AWSRegion
+from nops_sdk.cloud_infrastructure.cloud_operation import Periodicity
 from nops_cli.utils.logger_util import logger
 from nops_cli.libs.terraform import Terraform
 from nops_cli.libs.aws_lib import get_aws_region
@@ -15,6 +16,9 @@ class TerraformPricing(Terraform):
     """
     def __init__(self, tf_dir, **kwargs):
         Terraform.__init__(self, tf_dir, **kwargs)
+        self.tf_spec = []
+        self.aws_region = None
+
 
     def _process_terraform_output(self, plan_out):
         """
@@ -51,34 +55,53 @@ class TerraformPricing(Terraform):
         return processed_output
 
 
-    def _get_plan_delta(self):
+    def _set_aws_region(self):
+        """
+        Set AWS region
+        """
+        self.aws_region = get_aws_region()
+
+
+    def _set_tf_spec(self):
         """
         Get "terraform plan" output in JSON format for pricing
         """
-        processed_output = None
         logger.debug("Get terraform plan output")
         output = self.terraform_plan()
         logger.debug(f"Terraform plan output: {output}")
         # Process output to identify resource ids,type and delta from terraform plan output
         logger.debug("Process terraform plan output")
         if output:
-            processed_output = self._process_terraform_output(output)
-            logger.debug(f"Processed terraform plan output {processed_output}")
-        return processed_output
+            self.tf_spec = self._process_terraform_output(output)
+            logger.debug(f"Processed terraform plan output {self.tf_spec}")
+        return
+
+
+    def _display_nops_pricing(self, periodicity):
+        """
+        Display pricing using nOps SDK
+        """
+        try:
+            print(f"{periodicity.capitalize()} cost impact for terraform project:"
+                  f" {self.tf_dir}")
+            cloud_cost = CloudCost(aws_region=AWSRegion(self.aws_region), spec=self.tf_spec)
+            cloud_cost.load_prices()
+            cloud_cost.compute_cost_effects(period=Periodicity('monthly'))
+            cloud_cost.output_report()
+        except Exception as e:
+            logger.error(f"Error while computing the pricing for terraform project {self.tf_dir}."
+                         f" Error: {e}")
+
 
     def display_pricing(self, periodicity):
         """
         Get and display pricing info for terraform project
         """
         try:
-            sdk_payload = self._get_plan_delta()
-            aws_region = get_aws_region()
-            if sdk_payload:
-                out = compute_terraform_cost_change(aws_region, periodicity, sdk_payload)
-                print(f"{periodicity.capitalize()} cost impact for terraform project:"
-                      f" {self.tf_dir}")
-                for op in out:
-                    print(op.report)
+            self._set_tf_spec()
+            self._set_aws_region()
+            if self.tf_spec:
+                self._display_nops_pricing(periodicity)
             else:
                 print(f"No change found pricing in terraform project: {self.tf_dir}")
         except Exception as e:
