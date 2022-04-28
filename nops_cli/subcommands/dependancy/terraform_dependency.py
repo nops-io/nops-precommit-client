@@ -68,8 +68,8 @@ class TerraformDependency(Terraform):
                     sdk_payload = {}
                     sdk_payload["aws_account_number"] = account_id
                     sdk_payload["resource_ids"] = resource_ids
-                    # output = self._get_resources_dependencies(resource_ids)
-                    output = self.tmp_process_output()
+                    output = self._get_resources_dependencies(resource_ids)
+                    # output = self.tmp_process_output()
                     print("Dependencies:")
                     print(json.dumps(output, indent=4))
                 else:
