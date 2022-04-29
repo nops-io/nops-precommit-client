@@ -27,6 +27,7 @@ class Terraform:
         if not binary_name:
             binary_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
             binary_name = f"{binary_name}.out"
+        execute(f"terraform init", self.tf_dir)
         execute(f"terraform plan -out={binary_name}", self.tf_dir)
         return binary_name
 
