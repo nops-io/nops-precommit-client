@@ -18,6 +18,7 @@ class TerraformPricing(Terraform):
         Terraform.__init__(self, tf_dir, **kwargs)
         self.tf_spec = []
         self.aws_region = None
+        self.cloud_cost = None
 
 
     def _process_terraform_output(self, plan_out):
@@ -76,6 +77,14 @@ class TerraformPricing(Terraform):
             logger.debug(f"Processed terraform plan output {self.tf_spec}")
         return
 
+    def _set_cloud_cost(self, periodicity):
+        try:
+            self.cloud_cost = CloudCost(aws_region=AWSRegion(self.aws_region), spec=self.tf_spec)
+            self.cloud_cost.load_prices()
+            self.cloud_cost.compute_cost_effects(period=Periodicity(periodicity))
+        except Exception as e:
+            logger.error(f"Error while computing/loading the pricing for terraform project {self.tf_dir}."
+                         f" Error: {e}")
 
     def _display_nops_pricing(self, periodicity):
         """
@@ -84,13 +93,12 @@ class TerraformPricing(Terraform):
         try:
             print(f"{periodicity.capitalize()} cost impact for terraform project:"
                   f" {self.tf_dir}")
-            cloud_cost = CloudCost(aws_region=AWSRegion(self.aws_region), spec=self.tf_spec)
-            cloud_cost.load_prices()
-            cloud_cost.compute_cost_effects(period=Periodicity('monthly'))
-            cloud_cost.output_report()
+            self._set_cloud_cost(periodicity)
+            self.cloud_cost.output_report()
         except Exception as e:
-            logger.error(f"Error while computing the pricing for terraform project {self.tf_dir}."
+            logger.error(f"Error while display the pricing for terraform project {self.tf_dir}."
                          f" Error: {e}")
+        return
 
 
     def display_pricing(self, periodicity):

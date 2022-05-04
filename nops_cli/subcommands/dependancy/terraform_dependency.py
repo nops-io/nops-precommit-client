@@ -114,7 +114,7 @@ class TerraformDependency(Terraform):
         resources_dependencies = []
         for resource_id in resource_ids:
             resource_dependency = self.account_dep.get_related_resources(resource_id)
-            resources_dependencies.append(resource_dependency)
+            resources_dependencies.append(resource_dependency.__dict__)
         return resources_dependencies
 
 
