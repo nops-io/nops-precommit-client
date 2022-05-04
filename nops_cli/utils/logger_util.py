@@ -26,4 +26,4 @@ def get_logger(logger_name, file_name, console_logs=False):
     return loggers
 
 
-logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log", True)
+logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log", False)
