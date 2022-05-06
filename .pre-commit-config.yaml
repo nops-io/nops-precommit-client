@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/nops-io/nops-precommit-client/
+    rev: v1.0.5-beta
+    hooks:
+      - id: nops-hook-pricing
+        verbose: true
+        args: [--periodicity=daily]
+      - id: nops-hook-dependency 
+        verbose: true

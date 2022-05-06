@@ -1,0 +1,19 @@
+-   id: nops-hook-pricing
+    name: nOps Pricing Hook
+    description: This hook will help to analyze the cost impact for your terraform projects
+    entry: nops-cli --pricing --iac-type terraform
+    language: python
+    language_version: "3.9"
+    additional_dependencies: ["jsondiff", "/tmp/nops_sdk-0.3.1.tar.gz"]
+    files: (\.tf)$
+    exclude: \.terraform\/.*$
+
+-   id: nops-hook-dependency
+    name: nOps Dependency Hook
+    description: This hook will help to analyze the dependency impact for your terraform projects
+    entry: nops-cli --dependency --iac-type terraform
+    language: python
+    language_version: "3.9"
+    additional_dependencies: ["jsondiff", "/tmp/nops_sdk-0.3.1.tar.gz"]
+    files: (\.tf)$
+    exclude: \.terraform\/.*$
