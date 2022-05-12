@@ -50,7 +50,7 @@ mkdir -p .github/workflows
 ```
 3. In the .github/workflows directory, create a file named nOps-action.yml. 
 4. Copy the **[nOps-action.yml](nOps-action.yml)** YAML contents into the nOps-action.yml file. 
-5. Configure the list of terraform project as a space separated values in yml as TERRAFORM_PROJECT. 
+5. Configure the list of terraform project as a space separated values in yml for TERRAFORM_PROJECT. 
 6. Add following required secrets in github. [Please refer to add Github secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
      - **ACCESS_TOKEN_GITHUB** - Your personal github action token. nOps action will use this token to add the comment on you Pull Request.
      - **NOPS_API_KEY** - Your nOps account API key .
