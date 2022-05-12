@@ -38,7 +38,8 @@ terminal#
 nOps Github Action will help you to get the estimated cost impact for your IAC(currently we are supporting terraform only) projects impacted by Github pull request code changes.
 
 # How to use
-To use nOps Github action please follow the below steps. It will run pricing checks when you make terraform code changes and creates/updates the Github pull requests for the terraform projects those are configured as a part of nOps-action.yml. 
+To use nOps Github action please follow the below steps. It will run cloud pricing checks when you 
+make the pull request code changes for your IAC projects configured as a part of nOps-action.yml. 
 1. Create a .github/workflows directory in your repository on GitHub if this directory does not already exist.
 ```shell
 cd ${GITHUB_REPOSITORY}
