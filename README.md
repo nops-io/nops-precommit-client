@@ -48,15 +48,15 @@ To use nOps Github action:
 cd ${GITHUB_REPOSITORY}
 mkdir -p .github/workflows
 ```
-3. In the .github/workflows directory, create a file named nOps-action.yml. 
-4. Copy the **[nOps-action.yml](nOps-action.yml)** YAML contents into the nOps-action.yml file. 
-5. Configure the list of terraform project as a space separated values in yml for TERRAFORM_PROJECT. 
-6. Add following required secrets in github. [Please refer to add Github secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+2. In the .github/workflows directory, create a file named nOps-action.yml. 
+3. Copy the **[nOps-action.yml](nOps-action.yml)** YAML contents into the nOps-action.yml file. 
+4. Configure the list of terraform project as a space separated values in yml for TERRAFORM_PROJECT. 
+5. Add following required secrets in github. [Please refer to add Github secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
      - **ACCESS_TOKEN_GITHUB** - Your personal github action token. nOps action will use this token to add the comment on you Pull Request.
      - **NOPS_API_KEY** - Your nOps account API key .
      - **NOPS_AWS_ACCESS_KEY** - Any valid AWS_ACCESS_KEY. This key is required for terraform.
      - **NOPS_AWS_SECRET_KEY** - Any valid AWS_SECRET_ACCESS_KEY.  This key is required for terraform.
      - **NOPS_AWS_REGION** - AWS region. This region is required for terraform and nOps sdk.
-7. We are ready to create/update the pull requests and Github will trigger the nOps action for it 
+6. We are ready to create/update the pull requests and Github will trigger the nOps action for it 
  once we complete above steps.
 <img src=".github/images/Action-Execution.png" alt="nOps Github Action Execution" />
