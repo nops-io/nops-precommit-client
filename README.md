@@ -39,7 +39,7 @@ nOps Github Action will help you to get the estimated cost impact for your IAC(c
 supporting terraform only) projects impacted by Github pull request code changes. It will run cloud
 pricing checks when you make the pull request code changes for your IAC projects configured as a 
 part of nOps-action.yml.
-
+<img src=".github/images/Action-Result.png" alt="nOps Github Action Result" />
 
 # How to use
 To use nOps Github action: 
@@ -59,3 +59,4 @@ mkdir -p .github/workflows
      - **NOPS_AWS_REGION** - AWS region. This region is required for terraform and nOps sdk.
 7. We are ready to create/update the pull requests and Github will trigger the nOps action for it 
  once we complete above steps.
+<img src=".github/images/Action-Execution.png" alt="nOps Github Action Execution" />
