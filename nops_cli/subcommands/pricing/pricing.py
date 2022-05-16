@@ -14,10 +14,13 @@ class Pricing():
         self.project_dir = project_dir
         self.periodicity = periodicity
         self.iac_type = iac_type
+        self.cloud_cost = None
 
     def display_pricing(self):
         if IacTypes.TERRAFORM:
             tf_pricing = TerraformPricing(self.project_dir)
             tf_pricing.display_pricing(self.periodicity)
+            self.cloud_cost = tf_pricing.cloud_cost
         else:
             logger.error(f"IAC type {self.iac_type} not supported")
+

@@ -20,5 +20,5 @@ def execute(command, cwd=None):
         logger.debug(f"Executed command: {command}. Output: {output}")
         return output
     except Exception as e:
-        logger.error(f"Failed while executing command. Error: {str(e)}")
+        logger.error(f"Failed while executing command. Command: {command}. Error: {str(e)}")
     return None
