@@ -1,0 +1,56 @@
+name: nOps-pricing-action
+on:
+  pull_request:
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.NOPS_AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.NOPS_AWS_SECRET_KEY }}
+  NOPS_API_KEY: ${{ secrets.NOPS_API_KEY }}
+  TERRAFORM_PROJECT: terraform_project1 terraform_project2 terraform_project3 terraform_project4
+  
+jobs:
+  nops-cli-job:
+    name: nops-cli
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout nOps CLI repo
+        with:
+          repository: nops-io/nops-precommit-client
+          ref: ys-git-action
+      - uses: actions/setup-python@v2
+        name: Install python
+        with:
+          python-version: 3.9
+      - name: Install nOps SDK
+        run:
+          pip install --index-url https://test.pypi.org/simple/ nops-sdk==0.3.1 --extra-index-url https://pypi.org/simple
+      - name: Install nops-cli
+        run:
+          python3 -m pip install --upgrade pip
+          pip install .
+      - uses: actions/checkout@v3
+        name: Checkout base branch of terraform repo
+        with:
+          ref: ${{ github.base_ref }}
+      - name: Run nOps CLI on base branch
+        id: nops_cli_run_base
+        run: |
+          nops-cli ${TERRAFORM_PROJECT} --pricing --iac-type terraform --periodicity monthly --github_action --pr_number ${{ github.event.pull_request.number }} --repo_name ${GITHUB_REPOSITORY} --token ${{ secrets.ACCESS_TOKEN_GITHUB }} --json_out_file old_cost_impact.json
+      - name: Upload old cost impact 
+        uses: actions/upload-artifact@v3
+        with:
+          name: old_cloud_cost_impact
+          path: old_cost_impact.json
+          retention-days: 1
+      - uses: actions/checkout@v3
+        name: Checkout source branch of terraform repo 
+      - name: Download old cost impact
+        uses: actions/download-artifact@v3
+        with:
+          name: old_cloud_cost_impact
+      - name: Run nOps CLI on source branch
+        id: nops_cli_run_source
+        run: |
+          nops-cli ${TERRAFORM_PROJECT} --pricing --iac-type terraform --periodicity monthly --github_action --pr_number ${{ github.event.pull_request.number }} --repo_name ${GITHUB_REPOSITORY} --token ${{ secrets.ACCESS_TOKEN_GITHUB }} --json_in_file old_cost_impact.json 
+
