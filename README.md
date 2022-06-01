@@ -7,7 +7,7 @@ nOps CLI can be independently installed and executed.
 3. Run following command to install nops-cli and dependencies. Make sure you are using
 python3.9 or above.
 ```shell
-pip install .
+pip3 install .
 ```
 4. Set required enviornment variables
      - **NOPS_API_KEY** - Your nOps account API key.
@@ -51,7 +51,7 @@ To use nOps hook with pre-commit,
 2. You need to have the pre-commit package manager installed. Use following pip command to
 install pre-commit.
 ```shell
-pip install pre-commit
+pip3 install pre-commit
 ```
 2. Create a file named .pre-commit-config.yaml
 3. Copy the content from [.pre-commit-config.yaml](.pre-commit-config.yaml) file 
