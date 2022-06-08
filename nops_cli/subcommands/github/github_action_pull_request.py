@@ -187,6 +187,12 @@ class GithubPullRequestAction:
         except Exception as e:
             logger.error(f"Failed while adding comment on PR. Error: {e}")
 
+    def get_cloud_cost_json(self, projects_pricing):
+        try:
+            return self._get_cloud_cost_json(projects_pricing)
+        except Exception as e:
+            logger.error(f"Error while generating cloud cost. Error: {e}")
+
     def create_cloud_cost_json_file(self, projects_pricing, json_out_file,
                                     invalid_project_dir_paths):
         """

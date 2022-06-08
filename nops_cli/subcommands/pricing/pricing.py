@@ -24,3 +24,13 @@ class Pricing():
         else:
             logger.error(f"IAC type {self.iac_type} not supported")
 
+    def get_project_total_cost_impact(self):
+        """
+        Compute total cloud cost impact for base branch out JSON
+        """
+        logger.debug("Get total cost impact")
+        total_cost_impact = 0
+        for op in self.cloud_cost.operation_group.operations:
+            total_cost_impact += float(op.cost_effect)
+        return total_cost_impact
+
