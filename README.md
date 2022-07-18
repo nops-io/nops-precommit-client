@@ -1,7 +1,7 @@
 # nOps CLI
 nOps CLI can be independently installed and executed.
 
-## How to install
+## How to Install
 1. Clone repo [https://github.com/nops-io/nops-precommit-client.git](https://github.com/nops-io/nops-precommit-client.git)
 2. Checkout to git directory
 3. Run following command to install nops-cli and dependencies. Make sure you are using
@@ -13,7 +13,7 @@ pip3 install .
      - **NOPS_API_KEY** - Your nOps account API key.
      - **AWS_REGION** - Set AWS region.
 
-## How to run
+## How to Run
 ```CLI Help
 terminal#nops-cli  --help                                                                                              
 usage: nops-cli [-h] [--pricing] [--dependency] [--iac-type {terraform}] [--periodicity {hourly,daily,monthly,yearly}] [--github_action] [--token TOKEN] [--pr_number PR_NUMBER]
@@ -45,7 +45,7 @@ terminal#
 ```
 
 
-# nOps pre-commit hooks
+# nOps pre-commit Hooks
 To use nOps hook with pre-commit, 
 1. Make sure you have already installed the nops-cli or Please refer above section to setup the nops-cli on your machine.
 2. You need to have the pre-commit package manager installed. Use following pip command to
@@ -61,15 +61,18 @@ to .pre-commit-config.yaml file in your repo.
 6. Now pre-commit will run automatically on `git commit`. It will run pricing and resource dependency pre commit hooks when you make terraform code changes and commit them.
 It will ignore non-terraform code changes. nops pre-commit hooks will be skipped in this case.
 
+## The .pre-commit-config.yaml File
+The nOps `.pre-commit-config.yaml` file contains code that looks for the pricing and dependency files. 
+
+The first time you run a git commit command that updates code in a specified .tf file, the hook checks the nops repo to fetch and install the pricing and dependency hooks code files (.tar or .gz) on your machine, and runs it using python. This happens the first time the hook is run and the data is cached. After that the pre-commit hook finds the files, and runs the hooks each time you try to commit a Terraform file code change. For example if you change the periodicity or deploy a larger or smaller resource instance. The pricing changes print to your CLI instance. 
+
 
 # nOps Github Action
-nOps Github Action will help you to get the estimated cost impact for your IAC(currently we are 
-supporting terraform only) projects impacted by Github pull request code changes. It will run cloud
-pricing checks when you make the pull request code changes for your IAC projects configured as a 
-part of nOps-action.yml.
+nOps Github Action will help you to get the estimated cost impact for your IAC(currently we are supporting terraform only) projects impacted by Github pull request code changes. It will run cloud pricing checks when you make the pull request code changes for your IAC projects configured as a 
+part of `nOps-action.yml`.
 <img src=".github/images/Action-Result.png" alt="nOps Github Action Result" />
 
-# How to use
+## How to Use
 To use nOps Github action: 
 1. Create a **.github/workflows** directory in your repository on GitHub if this directory does not already exist.
 ```shell
@@ -88,3 +91,8 @@ mkdir -p .github/workflows
 6. We are ready to create/update the pull requests and Github will trigger the nOps action for it 
  once we complete above steps.
 <img src=".github/images/Action-Execution.png" alt="nOps Github Action Execution" />
+
+## How the Action is Triggered
+The pre-commit hook is triggered the first time you commit a code change to a branch in the repository and create a PR. The next commit into that branch will trigger the GitHub action. That is, after the PR is created, a submission to the branch triggers the GitHub action as seen in the example graphic above.
+
+The nops-pricing-action check (GitHub action) must run in order for you to view the cost impact information. The action prints the cost changes to the screen (within the PR).
