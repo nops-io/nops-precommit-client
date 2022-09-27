@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from nops_cli.constants.resource_mapping import TERRAFORM_RESOURCE_MAPPING
 from nops_cli.utils.logger_util import logger
 
@@ -38,3 +39,17 @@ def check_and_get_invalid_path(path):
     if path.endswith(".tf"):
         path = "/".join(path.split("/")[:-1])
     return path
+
+def get_indentation(line):
+    """
+    Get the indentation for a line
+    """
+    return len(line) - len(line.lstrip())
+
+
+def check_if_file_is_available(file_path):
+	"""
+	Check if file is available on file_path
+	"""
+	path = Path(file_path)
+	return path.is_file()
