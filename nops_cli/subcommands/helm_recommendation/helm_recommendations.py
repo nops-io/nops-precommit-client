@@ -1,13 +1,15 @@
+import os
 import yaml
 import math
 import random
 import string
+import subprocess
 from pathlib import Path
 from nops_cli.utils.logger_util import logger
-from nops_cli.libs.common_lib import get_indentation, check_if_file_is_available
+from nops_cli.libs.common_lib import get_indentation, check_if_file_is_available, query_yes_no
 from nops_cli.constants.helm_recommendations_constants \
     import SEARCH_CONTAINER_STRING, SEARCH_RESOURCE_STRING, SEARCH_CONTAINER_NAME, PERIODICITY
-from nops_cli.utils.execute_command import execute
+from nops_cli.constants.helm_recommendations_constants import colors
 from nops_sdk.k8s.pod_recommendations import K8SRecommendations
 
 
@@ -172,14 +174,16 @@ class Container:
 
 
 class HelmRecommendations:
-    def __init__(self, helm_chart_dir, cluster_id, periodicity, yml_indent=2):
-        self.helm_chart_dir = helm_chart_dir
+    def __init__(self, helm_chart_dir, cluster_id, periodicity, auto_approve_helm_recommendations,
+                 yml_indent=2):
+        self.helm_chart_dir = os.path.abspath(helm_chart_dir)
         self.containers = []
         self.yml_indent = yml_indent
         self.deployment_yamls = []
         self.cluster_id = cluster_id
         self.periodicity = periodicity
         self.recommendations_applied = False
+        self.auto_approve_helm_recommendations = auto_approve_helm_recommendations
 
     def __set_deployment_yamls(self):
         """
@@ -293,6 +297,35 @@ class HelmRecommendations:
             logger.error(f"Error while converting the RAM from bytes to MB. Error {e}")
         return ram_in_mb
 
+    def print_resource_recommendation(self, recommendations):
+        """
+        Print container resources recommendations
+        """
+        recommendation_key_list = ["limits", "requests"]
+        for recommendation_key in recommendation_key_list:
+            recommendation = recommendations.get(recommendation_key, None)
+            if recommendation:
+                memory = recommendation.get("memory", None)
+                cpu = recommendation.get("cpu", None)
+                self.print_recommndation("".join([recommendation_key[0].upper(),
+                                                  recommendation_key[1:]]))
+                if memory:
+                    self.print_recommndation(f"\tMemory: {memory}")
+                if cpu:
+                    self.print_recommndation(f"\tCPU: {cpu}")
+
+
+
+    def print_recommndation(self, message, error=False):
+        """
+        Print recommendations
+        """
+        if error:
+            print(f"{colors.RED}{message}{colors.ENDC}")
+        else:
+            print(f"{colors.GREEN}{message}{colors.ENDC}")
+
+
     def apply_containers_recommendations(self):
         """
         Apply nOps recommendations for available containers
@@ -304,10 +337,13 @@ class HelmRecommendations:
                 k8s_recommendations = recommendations.by_pod(base_name=pod_base_name,
                                                              period=self.get_periodicity())
                 if k8s_recommendations:
-                    logger.info(f"Applying recommendations for the container {pod_base_name}")
+                    self.print_recommndation(f"Based on analysis of your usage, nOps "
+                                             f"recommends following configurations for container"
+                                             f" {pod_base_name} resources")
+                    # logger.info(f"Applying recommendations for the container {pod_base_name}")
                 else:
-                    logger.info(f"No recommendations available from nOps for container "
-                                 f"{pod_base_name}")
+                    self.print_recommndation(f"No recommendation available from nOps for container"
+                                             f" {pod_base_name}")
                 for recommendation in k8s_recommendations:
                     nops_recommendation = {}
                     recommended_ram_limit = self.get_int_recommendation(recommendation,
@@ -337,14 +373,40 @@ class HelmRecommendations:
                     if nops_recommendation_requests:
                         nops_recommendation["requests"] = nops_recommendation_requests
                     if nops_recommendation:
-                        container.write_recommendations(nops_recommendation)
-                        self.recommendations_applied = True
-                        logger.info(f"Applied nOps recommendations {nops_recommendation} for container"
-                                    f" {pod_base_name}")
+                        self.print_resource_recommendation(nops_recommendation)
+                        apply_recommendations = True
+                        if not self.auto_approve_helm_recommendations:
+                            apply_recommendations = query_yes_no(
+                                f"Do you want to add the above recommendations in your helm chart "
+                                f"{self.helm_chart_dir}?")
+                        if apply_recommendations:
+                            container.write_recommendations(nops_recommendation)
+                            self.recommendations_applied = True
+                            self.print_recommndation(
+                                f"Applied nOps recommendations for container {pod_base_name} in "
+                                f"file {container.deployment_file}")
+                        else:
+                            self.print_recommndation("You opted to skip the recommendations", True)
                     else:
-                        logger.info(f"No recommendations found for container {pod_base_name}")
+                        self.print_recommndation(f"No recommendation available for container "
+                                                 f"{pod_base_name} resources")
         except Exception as e:
-            logger.error(f"Error while applying recommendations, Error: {e}")
+            logger.error(f"Error while applying recommendations. Error: {e}")
+
+    def execute_git_command(self, command):
+        """
+        Execute git commands
+        """
+        try:
+            logger.debug(f"Executing command: {command}")
+            logger.debug(command)
+            cmd_out = subprocess.run(command, stdout=subprocess.PIPE, shell=True, text=True,
+                                     check=True, cwd=self.helm_chart_dir)
+            output = cmd_out.stdout
+            logger.debug(f"Executed command: {command}. Output: {output}")
+            return output
+        except Exception as e:
+            raise Exception(f"Failed while executing command. Command: {command}. Error: {str(e)}")
 
     def commit_changes_and_create_pr(self):
         """
@@ -352,17 +414,27 @@ class HelmRecommendations:
         """
         try:
             if self.recommendations_applied:
-                branch_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-                branch_name = f"nOps-recommendations-{branch_name}"
-                for deployment_file in self.deployment_yamls:
-                    execute(f"git add {deployment_file}", cwd=self.helm_chart_dir)
-                execute(f"git checkout -b {branch_name}", cwd=self.helm_chart_dir)
-                execute("git commit -m 'Added nOps recommendations'", cwd=self.helm_chart_dir)
-                execute(f"git push --set-upstream origin {branch_name} -o merge_request.create",
-                        cwd=self.helm_chart_dir)
-                logger.info(f"Recommendation applied and created Merge Request using branch "
-                             f"{branch_name} for helm chart {self.helm_chart_dir}")
+                commit_recommendations = True
+                if not self.auto_approve_helm_recommendations:
+                    commit_recommendations = query_yes_no(
+                        f"Do you want to commit the recommendations in git for your helm chart"
+                        f" {self.helm_chart_dir}?")
+                if commit_recommendations:
+                    branch_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                    branch_name = f"nOps-recommendations-{branch_name}"
+                    for deployment_file in self.deployment_yamls:
+                        self.execute_git_command(f"git add {deployment_file}")
+                    self.execute_git_command(f"git checkout -b {branch_name}")
+                    self.execute_git_command("git commit -m 'Added nOps recommendations'")
+                    # self.execute_git_command(f"git push --set-upstream origin {branch_name}"
+                    #                          f" -o merge_request.create")
+                    self.print_recommndation(
+                        f"Recommendation applied and created Merge Request using branch "
+                        f"{branch_name} for helm chart {self.helm_chart_dir}")
+                else:
+                    self.print_recommndation("You opted to skip the recommendations for git", True)
             else:
-                logger.info(f"No recommendation applied yet for helm chart {self.helm_chart_dir}")
+                self.print_recommndation(f"No recommendantion applied yet for helm chart "
+                                         f"{self.helm_chart_dir}")
         except Exception as e:
             logger.error(f"Error while commit the changes to repository. Error: {e}")

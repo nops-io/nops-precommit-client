@@ -48,6 +48,8 @@ def main():
                         help="nOps recommendations")
     parser.add_argument('--create_recommendation_pull_request', default=False, action="store_true",
                         help="Set if you want to create Pull Request for nOps recommendations?")
+    parser.add_argument('--auto_approve_helm_recommendations', default=False, action="store_true",
+                        help="Set if you want to auto approve the helm recommendations")
     args = parser.parse_args()
 
     pricing = args.pricing
@@ -62,6 +64,7 @@ def main():
     eks_cluster_id = args.eks_cluster_id
     recommedation_periodicity = args.recommedation_periodicity
     create_recommendation_pr = args.create_recommendation_pull_request
+    auto_approve_helm_recommendations = args.auto_approve_helm_recommendations
 
     project_dir_paths, invalid_project_dir_paths = check_and_get_terraform_project(filenames)
     logger.debug(f"Valid terraform projects {project_dir_paths}")
@@ -88,7 +91,8 @@ def main():
                                                       invalid_project_dir_paths, periodicity)
 
     if helm_chart_dir and eks_cluster_id and recommedation_periodicity:
-        helm = HelmRecommendations(helm_chart_dir, eks_cluster_id, recommedation_periodicity)
+        helm = HelmRecommendations(helm_chart_dir, eks_cluster_id, recommedation_periodicity,
+                                   auto_approve_helm_recommendations)
         helm.set_containers()
         helm.apply_containers_recommendations()
         if create_recommendation_pr:

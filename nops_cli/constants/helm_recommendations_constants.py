@@ -9,3 +9,9 @@ PERIODICITY = {
     "SEVEN_DAYS": K8SPeriodicity.THIRTY_DAYS,
     "THIRTY_DAYS": K8SPeriodicity.THIRTY_DAYS
 }
+
+class colors:
+    RED = '\33[31m'
+    GREEN = '\33[32m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
