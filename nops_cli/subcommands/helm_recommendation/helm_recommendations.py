@@ -383,7 +383,7 @@ class HelmRecommendations:
                             container.write_recommendations(nops_recommendation)
                             self.recommendations_applied = True
                             self.print_recommndation(
-                                f"Applied nOps recommendations for container {pod_base_name} in "
+                                f"Added nOps recommendations for container {pod_base_name} in "
                                 f"file {container.deployment_file}")
                         else:
                             self.print_recommndation("You opted to skip the recommendations", True)
@@ -422,19 +422,28 @@ class HelmRecommendations:
                 if commit_recommendations:
                     branch_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
                     branch_name = f"nOps-recommendations-{branch_name}"
+                    commit_required = False
                     for deployment_file in self.deployment_yamls:
+                        out = self.execute_git_command(f"git diff {deployment_file}")
+                        if out:
+                            commit_required = True
                         self.execute_git_command(f"git add {deployment_file}")
-                    self.execute_git_command(f"git checkout -b {branch_name}")
-                    self.execute_git_command("git commit -m 'Added nOps recommendations'")
-                    # self.execute_git_command(f"git push --set-upstream origin {branch_name}"
-                    #                          f" -o merge_request.create")
-                    self.print_recommndation(
-                        f"Recommendation applied and created Merge Request using branch "
-                        f"{branch_name} for helm chart {self.helm_chart_dir}")
+                    if commit_required:
+                        self.execute_git_command(f"git checkout -b {branch_name}")
+                        self.execute_git_command("git commit -m 'Added nOps recommendations'")
+                        self.execute_git_command(f"git push --set-upstream origin {branch_name}"
+                                                 f" -o merge_request.create")
+                        self.print_recommndation(
+                            f"Recommendation applied and created Merge Request using branch "
+                            f"{branch_name} for helm chart {self.helm_chart_dir}")
+                    else:
+                        self.print_recommndation(
+                            f"Helm chart {self.helm_chart_dir } is already up to date with"
+                            f" recommendations")
                 else:
                     self.print_recommndation("You opted to skip the recommendations for git", True)
             else:
-                self.print_recommndation(f"No recommendantion applied yet for helm chart "
+                self.print_recommndation(f"No recommendation applied for helm chart "
                                          f"{self.helm_chart_dir}")
         except Exception as e:
             logger.error(f"Error while commit the changes to repository. Error: {e}")
