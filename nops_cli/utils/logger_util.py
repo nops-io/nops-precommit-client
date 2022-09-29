@@ -4,7 +4,7 @@ import os
 import sys
 
 
-def get_logger(logger_name, file_name, console_logs=False):
+def get_logger(logger_name, file_name):
     """
     Return logger for nops-cli
     :param logger_name: Name for the logger
@@ -19,6 +19,7 @@ def get_logger(logger_name, file_name, console_logs=False):
     # add file handler to loggers
     loggers.addHandler(file_handler)
     loggers.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+    console_logs = os.environ.get('CONSOLE_LOG', False)
     if console_logs:
         console_handle = logging.StreamHandler(sys.stdout)
         console_handle.setFormatter(formatter)
@@ -26,4 +27,4 @@ def get_logger(logger_name, file_name, console_logs=False):
     return loggers
 
 
-logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log", False)
+logger = get_logger("NOPS CLI Service Logger", "NOPSCLI.log")
